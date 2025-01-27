@@ -11,14 +11,6 @@ import os
 import numpy as np
 import json
 
-class FBRefDataIO:
-
-    def __init__(self, data_directory):
-        self.data_directory = data_directory
-
-    def 
-
-    
 
 class FBRefDataLoader:
 
@@ -26,19 +18,22 @@ class FBRefDataLoader:
         self.data_directory = data_directory
 
     def load_data(self, data, season):
-        file_path = os.path.join(data_directory, season, f"{data}.json")
+        file_path = os.path.join(self.data_directory, season, f"{data}.json")
         with open(file_path, "r") as f:
             return json.load(f)
     
-    def listdir(directory:str) -> list:
-        return [x for x in os.listdir(directory) if x[0] != '.']
+    def listdir(self, directory:str) -> list:
+        return [x for x in os.listdir(os.path.join(self.data_directory, directory)) if x[0] != '.']
 
 class FBRefDataWriter:
 
     def __init__(self, data_directory):
         self.data_directory = data_directory
 
-
+    def write_data(self, data, season, file_name):
+        file_path = os.path.join(self.data_directory, season, f"{file_name}.json")
+        with open(file_path, "w") as f:
+            return json.dump(data, f)
 
 
 class FBRefDataFormatter:
@@ -318,4 +313,5 @@ class FBRefExtractor:
             goalie_stat_df.columns = ['_'.join(col).strip() for col in goalie_stat_df.columns.values]
             goalie_stat_df = goalie_stat_df.rename(columns=player_column_names)
             stats.append(goalie_stat_df.to_dict(orient='records'))
+        print(len(stats))
         return stats

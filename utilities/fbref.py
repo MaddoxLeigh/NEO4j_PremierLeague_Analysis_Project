@@ -80,8 +80,6 @@ class FBRefDataFormatter:
     
         return match_data_list, player_stats_list, goalie_stats_list
 
-
-
 class FBRefExtractor:
     
     def __init__(self, **kwargs):

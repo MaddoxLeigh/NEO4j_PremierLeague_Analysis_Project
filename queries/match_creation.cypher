@@ -5,16 +5,22 @@ UNWIND $matches AS match_data
         match.home_score = toInteger(match_data.Home_Score),
         match.away_score = toInteger(match_data.Away_Score),
         match.home_expected = toFloat(match_data.Home_Expected),
-        match.away_expected = toFloat(match_data.Away_Expected)
+        match.away_expected = toFloat(match_data.Away_Expected),
+        match.game_week = match_data.GW,
+        match.attendance = match_data.Attendance
+
+
     MERGE (venue:Venue {name: match_data.Venue})
     MERGE (match)-[:PLAYED_AT]->(venue)
+
     WITH match, match_data
-    MATCH (home_team:Squad {name: match_data.Home + " " + $season_name})
-    MATCH (away_team:Squad {name: match_data.Away + " " + $season_name})
-    MATCH (game_week:GameWeek {gw_number: match_data.GW, season: $season_name})
+    MATCH (home_team:Squad {team: match_data.Home, season:$season_name})
+    MATCH (away_team:Squad {team: match_data.Away, season: $season_name})
+    Merge (season:Season {season:$season_name })
     MERGE (match)-[:HOME_TEAM]->(home_team)
     MERGE (match)-[:AWAY_TEAM]->(away_team)
-    MERGE (match)-[:IS_OF_GW]->(game_week)
+    MERGE (match)-[:IS_PART_OF]->(season)
+
     FOREACH (_ IN CASE WHEN match_data.Match_Report THEN [1] ELSE [] END |
         SET match.home_score = toInteger(match_data.Home_Score),
             match.away_score = toInteger(match_data.Away_Score)

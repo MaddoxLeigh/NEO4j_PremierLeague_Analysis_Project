@@ -1,6 +1,6 @@
     UNWIND $player_stats AS ps
     MATCH (player:Player {name: ps.player_name})
-    MATCH (squad:Squad {name: ps.team_name + " " + $season_name})
+    MATCH (squad:Squad {team: ps.team_name, season:  $season_name})
     MATCH (player)-[:IS_IN_SQUAD]->(squad)
     MATCH (match:Match {id: ps.match_id})
     MERGE (player)-[h:PLAYS_IN]->(match)

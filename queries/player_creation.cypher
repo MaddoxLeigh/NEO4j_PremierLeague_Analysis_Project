@@ -7,11 +7,7 @@ UNWIND $players AS player
         p.dob = date(player.dob),
         p.birth_place = player.birth_place,
         p.national_team = player.national_team,
-        p.club = player.club,
         p.wages = toFloat(player.wages),
-        p.contract_expiry = player.contract_expiry,
         p.img = player.img
-    MERGE (team:Team {name: player.Team})
-    MERGE (squad: Squad {name: player.Team + " " + $season_name})
-    MERGE (team)-[:HAS_SQUAD]->(squad)
+    MERGE (squad: Squad {team: player.Team, season: $season_name})
     MERGE (p)-[:IS_IN_SQUAD]->(squad)

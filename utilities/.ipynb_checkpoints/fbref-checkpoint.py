@@ -9,6 +9,7 @@ from datetime import datetime
 import random
 import os
 import numpy as np
+import simplejson
 import json
 
 
@@ -63,7 +64,7 @@ class FBRefDataWriter:
         """
         file_path = os.path.join(self.data_directory, season, f"{file_name}.json")
         with open(file_path, "w") as f:
-            return json.dump(data, f, allow_nan=False)
+            simplejson.dump(data, f, indent = 4, ignore_nan=True)
 
 
 class FBRefDataFormatter:
@@ -377,6 +378,7 @@ class FBRefExtractor:
         fixtures_df["Match Report Link"] = match_report_links
         fixtures_df["Match_ID"] = f"{self.season}"+fixtures_df["GW"]+fixtures_df["Home"]+fixtures_df["Away"]
         fixtures_df["Match_Report"] = (fixtures_df["Match_Report"] == "Match Report")
+        fixtures_df
         fixtures_df = fixtures_df.replace({np.nan: None})
 
         # convert the dataframe to a dictionary
@@ -468,6 +470,7 @@ class FBRefExtractor:
         stats = []
         for team_stat in team_game_stats:
             team_stat_df = pd.read_html(io.StringIO(str(team_stat)))[0]
+            team_stat_df = team_stat_df.iloc[:-1]
             team_stat_df.columns = ['_'.join(col).strip() for col in team_stat_df.columns.values]
             team_stat_df = team_stat_df.rename(columns=player_column_names)
             stats.append(team_stat_df.to_dict(orient='records'))

@@ -1,3 +1,3 @@
 """
-This is empty, purely to signify to python that this is a package to be imported by other files
+This file is empty so that we can use the utilities directory as an importable package into the other scripts.
 """

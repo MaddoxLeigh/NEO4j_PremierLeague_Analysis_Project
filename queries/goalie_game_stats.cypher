@@ -1,6 +1,6 @@
     UNWIND $goalkeeper_stats AS gs
     MATCH (goalie:Player {name: gs.goalie_name})
-    MATCH (squad:Squad {teams: gs.team_name, season: $season_name})
+    MATCH (squad:Squad {team: gs.team_name, season: $season_name})
     MATCH (goalie)-[:IS_IN_SQUAD]->(squad)
     MATCH (match:Match {id: gs.match_id})
     MERGE (goalie)-[h:PLAYS_IN]->(match)

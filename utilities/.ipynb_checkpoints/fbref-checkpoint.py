@@ -63,7 +63,7 @@ class FBRefDataWriter:
         """
         file_path = os.path.join(self.data_directory, season, f"{file_name}.json")
         with open(file_path, "w") as f:
-            return json.dump(data, f)
+            return json.dump(data, f, allow_nan=False)
 
 
 class FBRefDataFormatter:
@@ -97,9 +97,6 @@ class FBRefDataFormatter:
         Function to split the match data json into 3 lists. 
         match_report: json file (interpreted as a dict)
         """
-
-    
-
         #  match_data_list: list of dictionaries which represent general match statistics (Venue, Referee, Time, Gameweek etc)
         # player_stats_list: list of dictionaries for each players performance
         # goalie_stats_list list of dictionaries for each goalies performance 
@@ -118,25 +115,25 @@ class FBRefDataFormatter:
             # aadd this to the match data list 
             match_data_list.append(match_data)
     
-            # retrieve the home and away player statistics
-            home_player_stats = match["Home_Player_Stats"]
-            away_player_stats = match["Away_Player_Stats"]
-
-            # for each individual player statistic within the combination of these two lists
-            for player in home_player_stats + away_player_stats:
-
-                # add the match_id to their statistics dictionary, as well as their team name for this game
-                player["match_id"] = match_id  
-                player["team_name"] = match_data["Home"] if player in home_player_stats else match_data["Away"]
-                player_stats_list.append(player)
-                
-            # do the same for goalies
-            home_goalie_stats = match["Home_Goalie_Stats"]
-            away_goalie_stats = match["Away_Goalie_Stats"]
-            for goalie in home_goalie_stats + away_goalie_stats:
-                goalie["match_id"] = match_id  
-                goalie["team_name"] = match_data["Home"] if player in home_player_stats else match_data["Away"]
-                goalie_stats_list.append(goalie)
+            if "Home_Player_Stats" in match:
+                home_player_stats = match["Home_Player_Stats"]
+                away_player_stats = match["Away_Player_Stats"]
+    
+                # for each individual player statistic within the combination of these two lists
+                for player in home_player_stats + away_player_stats:
+    
+                    # add the match_id to their statistics dictionary, as well as their team name for this game
+                    player["match_id"] = match_id  
+                    player["team_name"] = match_data["Home"] if player in home_player_stats else match_data["Away"]
+                    player_stats_list.append(player)
+                    
+                # do the same for goalies
+                home_goalie_stats = match["Home_Goalie_Stats"]
+                away_goalie_stats = match["Away_Goalie_Stats"]
+                for goalie in home_goalie_stats + away_goalie_stats:
+                    goalie["match_id"] = match_id  
+                    goalie["team_name"] = match_data["Home"] if player in home_player_stats else match_data["Away"]
+                    goalie_stats_list.append(goalie)
     
         return match_data_list, player_stats_list, goalie_stats_list
 
@@ -145,7 +142,7 @@ class FBRefExtractor:
     Class for extracting specific data from the FBRef website.
     """
     
-    def __init__(self, season):
+    def __init__(self, **kwargs):
         """
         class initiator function.
 
@@ -154,7 +151,8 @@ class FBRefExtractor:
         self.fbref_url = "https://fbref.com{}"
         # this will be a list of all requests made in any past minute. this is to prevent being rate limited by the website
         self.request_timestamps = list()
-        self.set_season(season)
+        if kwargs.get("id"):
+            self.set_season(season)
 
     def set_season(self, season):
         """
@@ -409,7 +407,7 @@ class FBRefExtractor:
         """
 
         # get the soup of the page
-        game_soup = self.get_page_soup(url)
+        game_soup = self.get_page_soup(endpoint)
         # find the table outlining both the player and goalie stats
         team_game_stats = game_soup.find_all(id=re.compile("all_player_stats"))
         goalie_game_stats = game_soup.find_all(id=re.compile("keeper_stats"), class_="table_wrapper")

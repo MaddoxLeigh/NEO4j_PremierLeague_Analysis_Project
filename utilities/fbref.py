@@ -12,6 +12,10 @@ import numpy as np
 import simplejson
 import json
 
+"""
+AI Declaration: Although AI usage was not used directly in the development of this code it did help in some functions with logic, or fixing errors generated. For instance, AI suggeseted to use simplejson instead of json due to the NaN in the data.
+"""
+
 
 class FBRefDataLoader:
     """
@@ -148,6 +152,8 @@ class FBRefExtractor:
         class initiator function.
 
         season: string of the season for which we are extracting data for
+
+        The use of keyword arguments here was assisted by AI.
         """
         self.fbref_url = "https://fbref.com{}"
         # this will be a list of all requests made in any past minute. this is to prevent being rate limited by the website
@@ -271,9 +277,7 @@ class FBRefExtractor:
         team_players_table = team_soup.select('table.stats_table')[0]
         # formulate a dictionary where the key is the players name and their value is their endpoint
         players_links_dict = {
-            l.get_text(): l.get("href")
-            for l in team_players_table.find_all('a')
-            if (link := l.get("href")) and "players" in link and "matchlogs" not in link
+            l.get_text(): l.get("href") for l in team_players_table.find_all('a') if (link := l.get("href")) and "players" in link and "matchlogs" not in link
         }
         return players_links_dict
 
@@ -475,8 +479,8 @@ class FBRefExtractor:
             team_stat_df = team_stat_df.rename(columns=player_column_names)
             stats.append(team_stat_df.to_dict(orient='records'))
         for count, goalie_stat in enumerate(goalie_game_stats):
-            goalie_stat_df = pd.read_html(io.StringIO(str(team_stat)))[0]
+            goalie_stat_df = pd.read_html(io.StringIO(str(goalie_stat)))[0]
             goalie_stat_df.columns = ['_'.join(col).strip() for col in goalie_stat_df.columns.values]
-            goalie_stat_df = goalie_stat_df.rename(columns=player_column_names)
+            goalie_stat_df = goalie_stat_df.rename(columns=goalie_column_names)
             stats.append(goalie_stat_df.to_dict(orient='records'))
         return stats
